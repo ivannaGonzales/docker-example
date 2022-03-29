@@ -1,0 +1,18 @@
+publish:
+runs-on: ubuntu-20.04
+steps:
+ - uses: actions/checkout@v2
+ - name: Set up JDK 17
+ uses: actions/setup-java@v2
+ with:
+ distribution: 'adopt'
+ java-version: '17'
+ - name: Run tests
+ run: mvn test
+ - name: Generate Docker image
+ run: mvn spring-boot:build-image -DskipTests
+-Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME }}/items:v1
+ - name: Login to DockerHub
+ run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+ - name: Push image to DockerHub
+ run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/items:v1
